@@ -1430,15 +1430,9 @@ function IstruttoreView({ prenotazioni, setPrenotazioni, eventi, setEventi, anag
       if (Array.isArray(dati.carnet)) setCarnetTipi(dati.carnet.map(mappaCarnet));
       if (dati.impostazioni && typeof dati.impostazioni.quotaAssociativa === "number") setQuotaAssociativa(dati.impostazioni.quotaAssociativa);
       if (Array.isArray(dati.utenti)) setIstruttori(dati.utenti);
-      // Corsi e iscrizioni ricevute (modulo Iscrizione)
-      try {
-        const listaCorsi = await chiamaAPIGet("getCorsi");
-        if (Array.isArray(listaCorsi)) setCorsi(listaCorsi);
-        const listaIscrizioni = await chiamaAPIGet("getIscrizioni", { username, password });
-        if (Array.isArray(listaIscrizioni)) setIscrizioni(listaIscrizioni);
-      } catch (_) {
-        // se falliscono restano i dati precedenti
-      }
+      // Corsi e iscrizioni arrivano già in getDatiIniziali: nessuna chiamata aggiuntiva
+      if (Array.isArray(dati.corsi)) setCorsi(dati.corsi);
+      if (Array.isArray(dati.iscrizioni)) setIscrizioni(dati.iscrizioni);
       // Il log NON si carica qui: solo su richiesta, con il tasto "Carica log" in Setup > Utenti
     } catch (err) {
       // se fallisce il caricamento, restano visibili i dati precedenti
@@ -1533,7 +1527,9 @@ function IstruttoreView({ prenotazioni, setPrenotazioni, eventi, setEventi, anag
       });
       if (risposta.ok) {
         registraLog(istruttoreLoggato.nome, "approvazione", "Iscrizione", `Approvata iscrizione di ${isc.nome} ${isc.cognome} · ${isc.cane_nome}`);
-        await caricaTuttoDopoLogin(istruttoreLoggato.username, pwd);
+        // aggiornamento immediato a schermo, poi ricarico i dati in background senza far aspettare
+        setIscrizioni((prev) => prev.map((i) => (i.id === isc.id ? { ...i, stato: "approvato" } : i)));
+        caricaTuttoDopoLogin(istruttoreLoggato.username, pwd);
       } else {
         alert(risposta.errore || "Non è stato possibile approvare l'iscrizione.");
       }
@@ -1551,7 +1547,8 @@ function IstruttoreView({ prenotazioni, setPrenotazioni, eventi, setEventi, anag
         registraLog(istruttoreLoggato.nome, "rifiuto", "Iscrizione", `Rifiutata iscrizione di ${isc.nome} ${isc.cognome} · ${isc.cane_nome}`);
         setIscrizioneRifiutoId(null);
         setMotivoRifiuto("");
-        await caricaTuttoDopoLogin(istruttoreLoggato.username, pwd);
+        setIscrizioni((prev) => prev.map((i) => (i.id === isc.id ? { ...i, stato: "rifiutato" } : i)));
+        caricaTuttoDopoLogin(istruttoreLoggato.username, pwd);
       } else {
         alert(risposta.errore || "Non è stato possibile rifiutare l'iscrizione.");
       }
