@@ -4,7 +4,7 @@ import { ChevronDown, LogOut, Plus, Edit2, Trash2, Home, Settings, DogIcon, User
 // ============================================================
 // CONFIGURAZIONE API
 // ============================================================
-const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzPC82p8AE36an6It88wglgskoxgXJ-53V18eJca4CKtDlknVk8gK92ctCEKV9RwfIewA/exec';
+const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz8dOeh1v3fSplUT147OC25gJCG8mSZ2TZdvaGORtGJd8G2tgJ6q4Ygz7PrNZpFTMBV/exec';
 
 // ============================================================
 // ERROR BOUNDARY
