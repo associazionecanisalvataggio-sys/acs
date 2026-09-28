@@ -13,7 +13,7 @@ import {
    dell'app web di Apps Script (API_URL).
    ============================================================ */
 
-const API_URL = "https://script.google.com/macros/s/AKfycbz8dOeh1v3fSplUT147OC25gJCG8mSZ2TZdvaGORtGJd8G2tgJ6q4Ygz7PrNZpFTMBV/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz4cUlgZN4pHM1LacvHFLqKPPlhBktZzvY5pP75RdbBwyEXB5_CypfMAWf5nCHGTyUC/exec";
 
 // Contatore globale delle chiamate al backend in corso, usato per mostrare
 // un indicatore di caricamento automaticamente per QUALSIASI chiamata,
