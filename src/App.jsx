@@ -242,7 +242,7 @@ function Header({ role, setRole, onOpenInstall }) {
       </div>
       <div className="max-w-md sm:max-w-2xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 pb-3 flex gap-2">
         {[
-          { key: "cliente", label: "Area cliente", emoji: "🐶" },
+          { key: "cliente", label: "Lezioni", emoji: "🐶" },
           { key: "iscrizione", label: "Iscrizione", emoji: "📝" },
           { key: "istruttore", label: "Area istruttore", emoji: "🦮" },
         ].map((t) => (
@@ -2265,6 +2265,8 @@ function IstruttoreView({ prenotazioni, setPrenotazioni, eventi, setEventi, anag
                               <a href={urlRicevuta} target="_blank" rel="noreferrer" className="font-semibold underline" style={{ color: COLORS.terracotta }}>
                                 📎 Apri ricevuta del bonifico
                               </a>
+                            ) : (Number(isc.costo) || 0) === 0 ? (
+                              <span style={{ color: COLORS.green }}>Corso gratuito: nessuna ricevuta richiesta</span>
                             ) : (
                               <span style={{ color: COLORS.red }}>Ricevuta non disponibile</span>
                             )}
@@ -2804,6 +2806,7 @@ function IscrizioneView() {
   }, []);
 
   const corsoScelto = corsi.find((c) => c.id === form.corsoId) || null;
+  const corsoGratuito = !!corsoScelto && (Number(corsoScelto.prezzo) || 0) === 0;
 
   function valida(p) {
     if (p === 1) {
@@ -2816,7 +2819,7 @@ function IscrizioneView() {
     }
     if (p === 3) {
       if (!form.corsoId) return "Scegli il corso a cui iscriverti.";
-      if (!ricevuta) return "La ricevuta del bonifico è obbligatoria: carica una foto o un PDF.";
+      if (!corsoGratuito && !ricevuta) return "La ricevuta del bonifico è obbligatoria: carica una foto o un PDF.";
       if (!form.privacy) return "Per procedere devi acconsentire al trattamento dei dati personali.";
     }
     return "";
@@ -2872,7 +2875,7 @@ function IscrizioneView() {
         sessoCane: form.sessoCane,
         microchip: form.microchip.trim(),
         corsoSelezionato: form.corsoId,
-        ricevutaBase64: ricevuta.dataUrl,
+        ricevutaBase64: corsoGratuito || !ricevuta ? "" : ricevuta.dataUrl,
       });
       if (risposta && risposta.ok) {
         setInviata(true);
@@ -3004,14 +3007,14 @@ function IscrizioneView() {
               <div className="rounded-2xl p-4" style={{ background: "#F5F6F8" }}>
                 <div className="flex items-baseline justify-between gap-3">
                   <div className="text-[14px] font-bold" style={{ color: COLORS.navy, fontFamily: "Oswald, sans-serif" }}>{corsoScelto.nome}</div>
-                  <div className="text-[18px] font-bold shrink-0" style={{ color: COLORS.green, fontFamily: "Oswald, sans-serif" }}>{formattaEuro(corsoScelto.prezzo)}</div>
+                  <div className="text-[18px] font-bold shrink-0" style={{ color: COLORS.green, fontFamily: "Oswald, sans-serif" }}>{corsoGratuito ? "Gratuito" : formattaEuro(corsoScelto.prezzo)}</div>
                 </div>
                 <div className="text-[12px] text-slate-500 mt-1">{Number(corsoScelto.numero_lezioni) || 0} lezioni</div>
                 {corsoScelto.descrizione && <div className="text-[12px] text-slate-500 mt-1">{corsoScelto.descrizione}</div>}
               </div>
             )}
 
-            {DATI_BONIFICO.iban && (
+            {!corsoGratuito && DATI_BONIFICO.iban && (
               <div className="rounded-2xl border p-4 text-[12.5px]" style={{ borderColor: "#E2E5E9" }}>
                 <SectionLabel>Coordinate per il bonifico</SectionLabel>
                 {DATI_BONIFICO.intestatario && <div>Intestatario: <b>{DATI_BONIFICO.intestatario}</b></div>}
@@ -3021,6 +3024,13 @@ function IscrizioneView() {
               </div>
             )}
 
+            {corsoGratuito && (
+              <div className="rounded-xl p-3 text-[12.5px]" style={{ background: "#F0FAF3", color: COLORS.navy }}>
+                Questo corso è gratuito: non serve allegare nessuna ricevuta.
+              </div>
+            )}
+
+            {!corsoGratuito && (
             <div>
               <span className="text-[12px] font-medium text-slate-500 mb-1 block">
                 Ricevuta del bonifico <span style={{ color: COLORS.red }}>*</span>
@@ -3047,6 +3057,7 @@ function IscrizioneView() {
                 <input type="file" accept="image/*,application/pdf" onChange={scegliFile} className="hidden" />
               </label>
             </div>
+            )}
 
             <label className="flex items-start gap-2 text-[12px] text-slate-600">
               <input
